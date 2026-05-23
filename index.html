@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f172a">
+<title>Movilidad Ventas</title>
+<link rel="manifest" href="manifest.json">
+<!-- Open Graph -->
+<meta property="og:title" content="Movilidad Ventas">
+<meta property="og:description" content="App de pedidos y cartera para vendedores">
+<meta property="og:image" content="icons/icon-512.png">
+<meta property="og:url" content="">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #293548;
+    --border: #334155;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --radius: 14px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── PANTALLAS ── */
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ── LOGIN ── */
+  #screen-login {
+    background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    justify-content: center; align-items: center; padding: 2rem;
+  }
+  .login-card {
+    width: 100%; max-width: 360px;
+    background: rgba(30,41,59,0.8);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    backdrop-filter: blur(20px);
+  }
+  .login-logo {
+    text-align: center; margin-bottom: 2rem;
+  }
+  .login-logo .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 18px; margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+  }
+  .login-logo h1 { font-size: 1.4rem; font-weight: 600; }
+  .login-logo p { font-size: 0.85rem; color: var(--text2); margin-top: 0.25rem; }
+
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.8rem; color: var(--text2); margin-bottom: 0.5rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .form-group input {
+    width: 100%; padding: 0.875rem 1rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: var(--font); font-size: 1rem;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus { border-color: var(--accent); }
+
+  .btn-primary {
+    width: 100%; padding: 1rem;
+    background: linear-gradient(135deg, var(--accent), #2563eb);
+    border: none; border-radius: 10px;
+    color: white; font-family: var(--font);
+    font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+  }
+  .btn-primary:active { opacity: 0.9; transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.5; }
+
+  .error-msg {
+    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px; padding: 0.75rem 1rem;
+    font-size: 0.85rem; color: #fca5a5;
+    margin-top: 1rem; display: none;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-header h2 { font-size: 1.1rem; font-weight: 600; }
+  .header-back {
+    width: 36px; height: 36px;
+    background: var(--surface2); border: none;
+    border-radius: 10px; color: var(--text);
+    font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-user {
+    font-size: 0.8rem; color: var(--text2);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 600;
+  }
+
+  /* ── DASHBOARD ── */
+  #screen-dashboard { background: var(--bg); }
+  .dashboard-hero {
+    background: linear-gradient(135deg, var(--surface) 0%, #1e1b4b 100%);
+    padding: 1.5rem 1.25rem 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .dashboard-hero .greeting { font-size: 0.85rem; color: var(--text2); }
+  .dashboard-hero .name { font-size: 1.5rem; font-weight: 600; margin-top: 0.25rem; }
+  .stats-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin-top: 1.25rem;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 1rem;
+  }
+  .stat-card .stat-label { font-size: 0.75rem; color: var(--text2); margin-bottom: 0.25rem; }
+  .stat-card .stat-value { font-size: 1.4rem; font-weight: 600; font-family: var(--mono); }
+  .stat-card .stat-value.blue { color: var(--accent); }
+  .stat-card .stat-value.cyan { color: var(--accent2); }
+
+  .menu-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.875rem; padding: 1.25rem;
+  }
+  .menu-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 1rem;
+    text-align: center; cursor: pointer;
+    transition: transform 0.15s, border-color 0.2s;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 0.75rem;
+  }
+  .menu-card:active { transform: scale(0.96); }
+  .menu-card.blue { border-color: rgba(59,130,246,0.3); }
+  .menu-card.cyan { border-color: rgba(6,182,212,0.3); }
+  .menu-card.green { border-color: rgba(16,185,129,0.3); }
+  .menu-card.amber { border-color: rgba(245,158,11,0.3); }
+  .menu-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .menu-icon.blue { background: rgba(59,130,246,0.15); }
+  .menu-icon.cyan { background: rgba(6,182,212,0.15); }
+  .menu-icon.green { background: rgba(16,185,129,0.15); }
+  .menu-icon.amber { background: rgba(245,158,11,0.15); }
+  .menu-card span { font-size: 0.9rem; font-weight: 500; }
+
+  /* ── CONTENT ── */
+  .screen-content { flex: 1; overflow-y: auto; padding-bottom: 2rem; }
+
+  /* ── SEARCH ── */
+  .search-box {
+    padding: 1rem 1.25rem;
+    position: sticky; top: 57px; z-index: 50;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  .search-input-wrap { position: relative; }
+  .search-input-wrap input {
+    width: 100%; padding: 0.875rem 1rem 0.875rem 2.75rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: var(--font); font-size: 0.95rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input-wrap input:focus { border-color: var(--accent); }
+  .search-icon {
+    position: absolute; left: 0.875rem; top: 50%;
+    transform: translateY(-50%); color: var(--text3); font-size: 1rem;
+  }
+
+  /* ── LISTA ── */
+  .list-items { padding: 0.75rem 1.25rem; display: flex; flex-direction: column; gap: 0.625rem; }
+
+  .client-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem;
+    cursor: pointer; transition: border-color 0.2s, transform 0.1s;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .client-card:active { transform: scale(0.98); border-color: var(--accent); }
+  .client-avatar {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 1rem; flex-shrink: 0;
+  }
+  .client-info { flex: 1; min-width: 0; }
+  .client-info .client-name { font-weight: 500; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .client-info .client-nit { font-size: 0.78rem; color: var(--text2); font-family: var(--mono); margin-top: 0.15rem; }
+  .client-info .client-city { font-size: 0.78rem; color: var(--text3); margin-top: 0.1rem; }
+  .client-arrow { color: var(--text3); font-size: 1rem; }
+
+  /* ── CLIENTE DETALLE ── */
+  .detail-section {
+    margin: 1rem 1.25rem 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .detail-section-header {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .detail-row {
+    padding: 0.75rem 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(51,65,85,0.5);
+    font-size: 0.9rem;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .label { color: var(--text2); }
+  .detail-row .value { font-weight: 500; text-align: right; max-width: 60%; }
+  .detail-row .value.money { font-family: var(--mono); color: var(--warning); }
+  .detail-row .value.danger { font-family: var(--mono); color: var(--danger); }
+
+  .cartera-item {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid rgba(51,65,85,0.5);
+    font-size: 0.85rem;
+  }
+  .cartera-item:last-child { border-bottom: none; }
+  .cartera-item .ci-top { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+  .cartera-item .ci-num { font-family: var(--mono); font-weight: 500; }
+  .cartera-item .ci-saldo { font-family: var(--mono); color: var(--danger); font-weight: 600; }
+  .cartera-item .ci-dates { display: flex; gap: 1rem; color: var(--text2); font-size: 0.78rem; }
+  .badge-vencida {
+    background: rgba(239,68,68,0.15); color: #fca5a5;
+    font-size: 0.7rem; padding: 0.2rem 0.5rem;
+    border-radius: 6px; font-weight: 500;
+  }
+  .badge-vigente {
+    background: rgba(16,185,129,0.15); color: #6ee7b7;
+    font-size: 0.7rem; padding: 0.2rem 0.5rem;
+    border-radius: 6px; font-weight: 500;
+  }
+
+  /* ── BOTONES ACCIÓN ── */
+  .action-bar {
+    padding: 1rem 1.25rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+  }
+  .btn-action {
+    padding: 0.875rem; border-radius: 10px;
+    border: none; font-family: var(--font);
+    font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .btn-action:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-action.primary { background: linear-gradient(135deg, var(--accent), #2563eb); color: white; }
+  .btn-action.success { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+  .btn-action.full { grid-column: 1/-1; }
+
+  /* ── PEDIDO ── */
+  .pedido-cliente-sel {
+    margin: 1rem 1.25rem 0;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 12px; padding: 1rem;
+    display: flex; align-items: center; gap: 0.875rem;
+  }
+  .pedido-cliente-sel .pcs-info { flex: 1; }
+  .pedido-cliente-sel .pcs-name { font-weight: 600; font-size: 0.95rem; }
+  .pedido-cliente-sel .pcs-nit { font-size: 0.8rem; color: var(--text2); font-family: var(--mono); }
+  .btn-cambiar {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text2);
+    font-size: 0.78rem; padding: 0.4rem 0.75rem;
+    cursor: pointer; font-family: var(--font);
+  }
+
+  .producto-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 0.875rem 1rem;
+    display: flex; align-items: center; gap: 0.875rem;
+    cursor: pointer; transition: border-color 0.15s;
+  }
+  .producto-card:active { border-color: var(--accent); }
+  .producto-card.en-pedido { border-color: var(--success); background: rgba(16,185,129,0.05); }
+  .prod-info { flex: 1; min-width: 0; }
+  .prod-name { font-size: 0.88rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prod-ref { font-size: 0.75rem; color: var(--text2); font-family: var(--mono); margin-top: 0.1rem; }
+  .prod-stock { font-size: 0.75rem; color: var(--success); margin-top: 0.1rem; }
+  .prod-price { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+  .qty-control {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--surface2); border-radius: 8px;
+    padding: 0.25rem;
+  }
+  .qty-btn {
+    width: 28px; height: 28px; border: none;
+    background: var(--border); border-radius: 6px;
+    color: var(--text); font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .qty-val { min-width: 32px; text-align: center; font-family: var(--mono); font-size: 0.9rem; font-weight: 500; }
+
+  /* ── RESUMEN PEDIDO ── */
+  .pedido-resumen {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    display: none;
+  }
+  .pedido-resumen.visible { display: block; }
+  .pr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .pr-items { font-size: 0.85rem; color: var(--text2); }
+  .pr-total { font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--success); }
+  .btn-confirmar {
+    width: 100%; padding: 0.875rem;
+    background: linear-gradient(135deg, var(--success), #059669);
+    border: none; border-radius: 10px;
+    color: white; font-family: var(--font);
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+  }
+
+  /* ── PEDIDOS LISTA ── */
+  .pedido-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem;
+  }
+  .pi-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+  .pi-num { font-family: var(--mono); font-size: 0.85rem; color: var(--text2); }
+  .pi-cliente { font-weight: 500; font-size: 0.95rem; margin-top: 0.15rem; }
+  .pi-bottom { display: flex; justify-content: space-between; align-items: center; }
+  .pi-items { font-size: 0.8rem; color: var(--text2); }
+  .pi-total { font-family: var(--mono); font-weight: 600; color: var(--success); }
+  .badge-estado {
+    font-size: 0.72rem; padding: 0.25rem 0.6rem;
+    border-radius: 6px; font-weight: 500;
+  }
+  .badge-PENDIENTE { background: rgba(245,158,11,0.15); color: #fcd34d; }
+  .badge-APROBADO { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .badge-FACTURADO { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  .badge-ANULADO { background: rgba(239,68,68,0.15); color: #fca5a5; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 3rem 2rem; color: var(--text3);
+  }
+  .empty-state .ei { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state p { font-size: 0.95rem; }
+
+  /* ── LOADING ── */
+  .loading {
+    text-align: center; padding: 2rem; color: var(--text2);
+  }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── MODAL CONFIRMACIÓN ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 200; display: none;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-sheet {
+    background: var(--surface); border-top: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    padding: 1.5rem 1.25rem 2.5rem;
+    width: 100%; max-width: 600px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } }
+  .modal-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+  .modal-items { max-height: 40vh; overflow-y: auto; margin-bottom: 1rem; }
+  .modal-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .modal-item:last-child { border-bottom: none; }
+  .modal-item .mi-name { color: var(--text2); flex: 1; }
+  .modal-item .mi-qty { color: var(--text); margin: 0 0.75rem; font-family: var(--mono); }
+  .modal-item .mi-val { color: var(--success); font-family: var(--mono); font-weight: 500; }
+  .modal-total { display: flex; justify-content: space-between; padding: 0.875rem 0; border-top: 1px solid var(--border); font-weight: 600; margin-bottom: 1rem; }
+  .modal-total .mt-val { font-family: var(--mono); color: var(--success); font-size: 1.1rem; }
+  .modal-obs textarea {
+    width: 100%; padding: 0.75rem 1rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: var(--font); font-size: 0.9rem;
+    resize: none; outline: none; margin-bottom: 1rem;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.75rem 1.25rem;
+    font-size: 0.9rem; font-weight: 500;
+    z-index: 300; white-space: nowrap;
+    animation: toastIn 0.3s ease; display: none;
+  }
+  .toast.success { border-color: var(--success); color: #6ee7b7; }
+  .toast.error { border-color: var(--danger); color: #fca5a5; }
+  .toast.show { display: block; }
+  @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(10px); } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">📦</div>
+      <h1>Movilidad Ventas</h1>
+      <p>Ingresa tus credenciales</p>
+    </div>
+    <div class="form-group">
+      <label>Código de vendedor</label>
+      <input type="text" id="login-codigo" placeholder="ej. 01" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-clave" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="btn-login">Ingresar</button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <div class="dashboard-hero">
+    <div class="greeting">Buenos días,</div>
+    <div class="name" id="dash-nombre">Vendedor</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Pedidos hoy</div>
+        <div class="stat-value blue" id="dash-pedidos-hoy">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total hoy</div>
+        <div class="stat-value cyan" id="dash-total-hoy">$0</div>
+      </div>
+    </div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card blue" onclick="irA('clientes')">
+      <div class="menu-icon blue">👥</div>
+      <span>Clientes</span>
+    </div>
+    <div class="menu-card green" onclick="irA('nuevo-pedido')">
+      <div class="menu-icon green">🛒</div>
+      <span>Nuevo Pedido</span>
+    </div>
+    <div class="menu-card amber" onclick="irA('cartera')">
+      <div class="menu-icon amber">💰</div>
+      <span>Cartera</span>
+    </div>
+    <div class="menu-card cyan" onclick="irA('pedidos')">
+      <div class="menu-icon cyan">📋</div>
+      <span>Mis Pedidos</span>
+    </div>
+  </div>
+  <div style="text-align:center; padding: 1rem; margin-top: auto;">
+    <button onclick="logout()" style="background:none;border:none;color:var(--text3);font-size:0.85rem;cursor:pointer;font-family:var(--font);">
+      Cerrar sesión
+    </button>
+  </div>
+</div>
+
+<!-- CLIENTES -->
+<div id="screen-clientes" class="screen">
+  <div class="app-header">
+    <button class="header-back" onclick="irA('dashboard')">←</button>
+    <h2>Mis Clientes</h2>
+    <div class="header-user"><div class="avatar" id="hdr-avatar-cli">H</div></div>
+  </div>
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="cli-buscar" placeholder="Buscar por nombre o NIT..." oninput="buscarClientes(this.value)">
+    </div>
+  </div>
+  <div class="screen-content">
+    <div class="list-items" id="cli-lista"></div>
+  </div>
+</div>
+
+<!-- CLIENTE DETALLE -->
+<div id="screen-cliente-detalle" class="screen">
+  <div class="app-header">
+    <button class="header-back" id="btn-back-cliente" onclick="irA('clientes')">←</button>
+    <h2 id="det-nombre">Cliente</h2>
+    <div></div>
+  </div>
+  <div class="screen-content" id="det-content"></div>
+</div>
+
+<!-- CARTERA -->
+<div id="screen-cartera" class="screen">
+  <div class="app-header">
+    <button class="header-back" onclick="irA('dashboard')">←</button>
+    <h2>Cartera</h2>
+    <div class="header-user"><div class="avatar" id="hdr-avatar-car">H</div></div>
+  </div>
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="car-buscar" placeholder="Buscar cliente..." oninput="buscarClientesCartera(this.value)">
+    </div>
+  </div>
+  <div class="screen-content">
+    <div class="list-items" id="car-lista"></div>
+  </div>
+</div>
+
+<!-- NUEVO PEDIDO -->
+<div id="screen-nuevo-pedido" class="screen">
+  <div class="app-header">
+    <button class="header-back" onclick="irA('dashboard')">←</button>
+    <h2>Nuevo Pedido</h2>
+    <div></div>
+  </div>
+  <div class="screen-content" id="np-content" style="padding-bottom: 100px;">
+    <!-- paso 1: seleccionar cliente -->
+    <div id="np-paso1">
+      <div style="padding: 1rem 1.25rem 0;">
+        <p style="font-size:0.85rem; color:var(--text2); margin-bottom:0.75rem;">Selecciona un cliente:</p>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="np-cli-buscar" placeholder="Buscar cliente..." oninput="buscarClientesPedido(this.value)">
+        </div>
+      </div>
+      <div class="list-items" id="np-cli-lista"></div>
+    </div>
+    <!-- paso 2: agregar productos -->
+    <div id="np-paso2" style="display:none;">
+      <div id="np-cliente-sel"></div>
+      <div style="padding: 1rem 1.25rem 0.5rem;">
+        <p style="font-size:0.85rem; color:var(--text2); margin-bottom:0.75rem;">Busca y agrega productos:</p>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="np-prod-buscar" placeholder="Nombre o referencia..." oninput="buscarProductos(this.value)">
+        </div>
+      </div>
+      <div class="list-items" id="np-prod-lista"></div>
+    </div>
+  </div>
+  <!-- barra resumen -->
+  <div class="pedido-resumen" id="pedido-resumen">
+    <div class="pr-top">
+      <div class="pr-items" id="pr-items-count">0 productos</div>
+      <div class="pr-total" id="pr-total">$0</div>
+    </div>
+    <button class="btn-confirmar" onclick="abrirConfirmacion()">Revisar y confirmar pedido</button>
+  </div>
+</div>
+
+<!-- MIS PEDIDOS -->
+<div id="screen-pedidos" class="screen">
+  <div class="app-header">
+    <button class="header-back" onclick="irA('dashboard')">←</button>
+    <h2>Mis Pedidos</h2>
+    <div></div>
+  </div>
+  <div class="screen-content">
+    <div class="list-items" id="ped-lista"></div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal-overlay" id="modal-confirmacion">
+  <div class="modal-sheet">
+    <div class="modal-title">Confirmar Pedido</div>
+    <div class="modal-items" id="modal-items-lista"></div>
+    <div class="modal-total">
+      <span>Total</span>
+      <span class="mt-val" id="modal-total-val">$0</span>
+    </div>
+    <div class="modal-obs">
+      <textarea id="modal-obs" rows="2" placeholder="Observaciones (opcional)..."></textarea>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+      <button class="btn-action" onclick="cerrarModal()" style="background:var(--surface2); color:var(--text);">Cancelar</button>
+      <button class="btn-action success" id="btn-enviar-pedido" onclick="enviarPedido()">✓ Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:3002/api';
+let token = localStorage.getItem('mov_token') || '';
+let vendedor = JSON.parse(localStorage.getItem('mov_vendedor') || '{}');
+let pedidoActual = { cliente: null, items: {} }; // items: {ref: {producto, cantidad}}
+
+// ── UTILIDADES ──
+function fmt(n) {
+  return '$' + (parseFloat(n)||0).toLocaleString('es-CO', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+function fmtFecha(s) {
+  if(!s) return '-';
+  return new Date(s).toLocaleDateString('es-CO');
+}
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+async function api(path, opts={}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
+    ...opts
+  });
+  return res.json();
+}
+function irA(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  if(screen === 'clientes') cargarClientes();
+  if(screen === 'pedidos') cargarPedidos();
+  if(screen === 'dashboard') cargarDashboard();
+}
+function initApp() {
+  if(token && vendedor.codigo) {
+    irA('dashboard');
+    actualizarAvatares();
+  }
+}
+
+// ── LOGIN ──
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const codigo = document.getElementById('login-codigo').value.trim();
+  const clave = document.getElementById('login-clave').value;
+  if(!codigo || !clave) return;
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  try {
+    const data = await fetch(API + '/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({codigo, clave})
+    }).then(r => r.json());
+    if(data.token) {
+      token = data.token;
+      vendedor = data.vendedor;
+      localStorage.setItem('mov_token', token);
+      localStorage.setItem('mov_vendedor', JSON.stringify(vendedor));
+      irA('dashboard');
+      actualizarAvatares();
+    } else {
+      const err = document.getElementById('login-error');
+      err.style.display = 'block';
+      err.textContent = data.error || 'Credenciales incorrectas';
+    }
+  } catch(e) {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    err.textContent = 'No se pudo conectar al servidor';
+  }
+  btn.disabled = false; btn.textContent = 'Ingresar';
+});
+document.getElementById('login-clave').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('btn-login').click();
+});
+
+function actualizarAvatares() {
+  const ini = (vendedor.nombre||'V').charAt(0).toUpperCase();
+  document.getElementById('dash-nombre').textContent = vendedor.nombre || 'Vendedor';
+  ['hdr-avatar-cli','hdr-avatar-car'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = ini;
+  });
+}
+
+function logout() {
+  localStorage.removeItem('mov_token');
+  localStorage.removeItem('mov_vendedor');
+  token = ''; vendedor = {};
+  irA('login');
+}
+
+// ── DASHBOARD ──
+async function cargarDashboard() {
+  try {
+    const peds = await api(`/pedidos?vendedor=${vendedor.codigo}`);
+    const hoy = new Date().toISOString().slice(0,10);
+    const hoyPeds = (peds||[]).filter(p => p.fecha_pedido && p.fecha_pedido.slice(0,10) === hoy);
+    document.getElementById('dash-pedidos-hoy').textContent = hoyPeds.length;
+    const total = hoyPeds.reduce((s,p) => s + (parseFloat(p.valor_total)||0), 0);
+    document.getElementById('dash-total-hoy').textContent = fmt(total);
+  } catch(e) {}
+}
+
+// ── CLIENTES ──
+let clientesCache = [];
+async function cargarClientes() {
+  const lista = document.getElementById('cli-lista');
+  lista.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando clientes...</p></div>';
+  try {
+    const data = await api(`/clientes?vendedor=${vendedor.codigo}`);
+    clientesCache = data || [];
+    renderClientes(clientesCache);
+  } catch(e) {
+    lista.innerHTML = '<div class="empty-state"><div class="ei">⚠️</div><p>Error cargando clientes</p></div>';
+  }
+}
+function renderClientes(lista) {
+  const el = document.getElementById('cli-lista');
+  if(!lista.length) { el.innerHTML = '<div class="empty-state"><div class="ei">👥</div><p>No hay clientes</p></div>'; return; }
+  el.innerHTML = lista.map(c => `
+    <div class="client-card" onclick="verCliente('${c.nit}','${(c.nombre||'').replace(/'/g,"\\'")}')">
+      <div class="client-avatar">${(c.nombre||'?').charAt(0).toUpperCase()}</div>
+      <div class="client-info">
+        <div class="client-name">${c.nombre}</div>
+        <div class="client-nit">NIT: ${c.nit}</div>
+        <div class="client-city">${c.ciudad||''}</div>
+      </div>
+      <div class="client-arrow">›</div>
+    </div>
+  `).join('');
+}
+function buscarClientes(q) {
+  if(!q) { renderClientes(clientesCache); return; }
+  const f = q.toLowerCase();
+  renderClientes(clientesCache.filter(c =>
+    (c.nombre||'').toLowerCase().includes(f) || (c.nit||'').includes(f)
+  ));
+}
+
+// ── CLIENTE DETALLE ──
+async function verCliente(nit, nombre) {
+  document.getElementById('det-nombre').textContent = nombre;
+  document.getElementById('det-content').innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando...</p></div>';
+  irA('cliente-detalle');
+  document.getElementById('btn-back-cliente').onclick = () => irA('clientes');
+  try {
+    const data = await api(`/clientes/${nit}`);
+    const c = data.cliente || {};
+    const cartera = data.cartera || [];
+    const totalCartera = data.total_cartera || 0;
+    document.getElementById('det-content').innerHTML = `
+      <div class="detail-section">
+        <div class="detail-section-header">Datos del cliente</div>
+        <div class="detail-row"><span class="label">NIT</span><span class="value" style="font-family:var(--mono)">${c.nit}</span></div>
+        <div class="detail-row"><span class="label">Dirección</span><span class="value">${c.direccion||'-'}</span></div>
+        <div class="detail-row"><span class="label">Teléfono</span><span class="value">${c.telefono||'-'}</span></div>
+        <div class="detail-row"><span class="label">Ciudad</span><span class="value">${c.ciudad||'-'}</span></div>
+        <div class="detail-row"><span class="label">Plazo</span><span class="value">${c.plazo||0} días</span></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-header">
+          <span>Cartera pendiente</span>
+          <span style="color:var(--danger);font-family:var(--mono)">${fmt(totalCartera)}</span>
+        </div>
+        ${cartera.length ? cartera.map(f => {
+          const venc = new Date(f.vencimiento) < new Date();
+          return `<div class="cartera-item">
+            <div class="ci-top">
+              <span class="ci-num">Fact. ${f.numero}</span>
+              <span class="ci-saldo">${fmt(f.saldo)}</span>
+            </div>
+            <div class="ci-dates">
+              <span>Fecha: ${fmtFecha(f.fecha)}</span>
+              <span>Vence: ${fmtFecha(f.vencimiento)}</span>
+              <span class="${venc ? 'badge-vencida':'badge-vigente'}">${venc?'Vencida':'Vigente'}</span>
+            </div>
+          </div>`;
+        }).join('') : '<div style="padding:1rem;text-align:center;color:var(--text3);font-size:0.9rem;">✓ Sin cartera pendiente</div>'}
+      </div>
+      <div class="action-bar">
+        <button class="btn-action primary" onclick="pedidoDesdeCliente('${c.nit}','${(c.nombre||'').replace(/'/g,"\\'")}')">🛒 Nuevo pedido</button>
+        <button class="btn-action" onclick="verCarteraCliente('${c.nit}','${(c.nombre||'').replace(/'/g,"\\'")}')">💰 Ver cartera</button>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('det-content').innerHTML = '<div class="empty-state"><div class="ei">⚠️</div><p>Error cargando cliente</p></div>';
+  }
+}
+
+// ── CARTERA ──
+let clientesCacheCartera = [];
+function buscarClientesCartera(q) {
+  if(!clientesCacheCartera.length) cargarClientesCartera(q);
+  else {
+    const f = (q||'').toLowerCase();
+    const lista = f ? clientesCacheCartera.filter(c =>
+      (c.nombre||'').toLowerCase().includes(f)||(c.nit||'').includes(f)
+    ) : clientesCacheCartera;
+    renderClientesCartera(lista);
+  }
+}
+async function cargarClientesCartera(q) {
+  const lista = document.getElementById('car-lista');
+  lista.innerHTML = '<div class="loading"><div class="spinner"></div><p>Buscando...</p></div>';
+  try {
+    const data = await api(`/clientes?vendedor=${vendedor.codigo}&buscar=${encodeURIComponent(q||'')}`);
+    clientesCacheCartera = data || [];
+    renderClientesCartera(clientesCacheCartera);
+  } catch(e) { lista.innerHTML = ''; }
+}
+function renderClientesCartera(lista) {
+  const el = document.getElementById('car-lista');
+  if(!lista.length) { el.innerHTML = '<div class="empty-state"><div class="ei">🔍</div><p>Busca un cliente</p></div>'; return; }
+  el.innerHTML = lista.map(c => `
+    <div class="client-card" onclick="verCarteraCliente('${c.nit}','${(c.nombre||'').replace(/'/g,"\\'")}')">
+      <div class="client-avatar" style="background:linear-gradient(135deg,var(--warning),#d97706)">${(c.nombre||'?').charAt(0).toUpperCase()}</div>
+      <div class="client-info">
+        <div class="client-name">${c.nombre}</div>
+        <div class="client-nit">NIT: ${c.nit}</div>
+      </div>
+      <div class="client-arrow">›</div>
+    </div>
+  `).join('');
+}
+async function verCarteraCliente(nit, nombre) {
+  document.getElementById('det-nombre').textContent = nombre + ' — Cartera';
+  document.getElementById('det-content').innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando cartera...</p></div>';
+  irA('cliente-detalle');
+  document.getElementById('btn-back-cliente').onclick = () => irA('cartera');
+  try {
+    const data = await api(`/clientes/${nit}`);
+    const cartera = data.cartera || [];
+    const totalCartera = data.total_cartera || 0;
+    document.getElementById('det-content').innerHTML = `
+      <div class="detail-section">
+        <div class="detail-section-header">
+          <span>Total pendiente</span>
+          <span style="color:var(--danger);font-family:var(--mono);font-size:1rem">${fmt(totalCartera)}</span>
+        </div>
+        ${cartera.length ? cartera.map(f => {
+          const venc = new Date(f.vencimiento) < new Date();
+          return `<div class="cartera-item">
+            <div class="ci-top">
+              <span class="ci-num">Fact. ${f.numero}</span>
+              <span class="ci-saldo">${fmt(f.saldo)}</span>
+            </div>
+            <div class="ci-dates">
+              <span>Fecha: ${fmtFecha(f.fecha)}</span>
+              <span>Vence: ${fmtFecha(f.vencimiento)}</span>
+              <span class="${venc?'badge-vencida':'badge-vigente'}">${venc?'Vencida':'Vigente'}</span>
+            </div>
+          </div>`;
+        }).join('') : '<div style="padding:1.5rem;text-align:center;color:var(--success);font-size:0.9rem;">✓ Sin cartera pendiente</div>'}
+      </div>
+    `;
+  } catch(e) {}
+}
+
+// ── NUEVO PEDIDO ──
+function pedidoDesdeCliente(nit, nombre) {
+  pedidoActual = { cliente: {nit, nombre}, items: {} };
+  mostrarPaso2();
+  irA('nuevo-pedido');
+}
+function irA_nuevoPedido() {
+  pedidoActual = { cliente: null, items: {} };
+  document.getElementById('np-paso1').style.display = 'block';
+  document.getElementById('np-paso2').style.display = 'none';
+  document.getElementById('np-cli-buscar').value = '';
+  document.getElementById('np-cli-lista').innerHTML = '';
+  document.getElementById('pedido-resumen').classList.remove('visible');
+}
+
+async function buscarClientesPedido(q) {
+  if(!q) { document.getElementById('np-cli-lista').innerHTML=''; return; }
+  const data = await api(`/clientes?vendedor=${vendedor.codigo}&buscar=${encodeURIComponent(q)}`);
+  const el = document.getElementById('np-cli-lista');
+  if(!data||!data.length) { el.innerHTML='<div class="empty-state"><div class="ei">🔍</div><p>No encontrado</p></div>'; return; }
+  el.innerHTML = (data||[]).map(c => `
+    <div class="client-card" onclick="seleccionarClientePedido('${c.nit}','${(c.nombre||'').replace(/'/g,"\\'")}')">
+      <div class="client-avatar">${(c.nombre||'?').charAt(0).toUpperCase()}</div>
+      <div class="client-info"><div class="client-name">${c.nombre}</div><div class="client-nit">${c.nit}</div></div>
+      <div class="client-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function seleccionarClientePedido(nit, nombre) {
+  pedidoActual.cliente = {nit, nombre};
+  pedidoActual.items = {};
+  mostrarPaso2();
+}
+
+function mostrarPaso2() {
+  document.getElementById('np-paso1').style.display = 'none';
+  document.getElementById('np-paso2').style.display = 'block';
+  document.getElementById('np-prod-buscar').value = '';
+  document.getElementById('np-prod-lista').innerHTML = '';
+  document.getElementById('np-cliente-sel').innerHTML = `
+    <div class="pedido-cliente-sel">
+      <div class="client-avatar">${pedidoActual.cliente.nombre.charAt(0)}</div>
+      <div class="pcs-info">
+        <div class="pcs-name">${pedidoActual.cliente.nombre}</div>
+        <div class="pcs-nit">${pedidoActual.cliente.nit}</div>
+      </div>
+      <button class="btn-cambiar" onclick="cambiarCliente()">Cambiar</button>
+    </div>
+  `;
+  actualizarResumen();
+}
+
+function cambiarCliente() {
+  pedidoActual.cliente = null;
+  pedidoActual.items = {};
+  document.getElementById('np-paso1').style.display = 'block';
+  document.getElementById('np-paso2').style.display = 'none';
+  document.getElementById('np-cli-buscar').value = '';
+  document.getElementById('pedido-resumen').classList.remove('visible');
+}
+
+let prodBuscarTimeout;
+function buscarProductos(q) {
+  clearTimeout(prodBuscarTimeout);
+  if(!q || q.length < 2) { document.getElementById('np-prod-lista').innerHTML=''; return; }
+  prodBuscarTimeout = setTimeout(async () => {
+    const lista = document.getElementById('np-prod-lista');
+    lista.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const data = await api(`/productos?buscar=${encodeURIComponent(q)}`);
+    renderProductos(data||[]);
+  }, 400);
+}
+
+function renderProductos(prods) {
+  const el = document.getElementById('np-prod-lista');
+  if(!prods.length) { el.innerHTML='<div class="empty-state"><div class="ei">📦</div><p>Sin resultados</p></div>'; return; }
+  el.innerHTML = prods.map(p => {
+    const enPedido = pedidoActual.items[p.referencia];
+    const qty = enPedido ? enPedido.cantidad : 0;
+    return `
+    <div class="producto-card ${enPedido?'en-pedido':''}" id="prod-${p.referencia}">
+      <div class="prod-info">
+        <div class="prod-name">${p.nombre_producto}</div>
+        <div class="prod-ref">${p.referencia}</div>
+        <div class="prod-stock">Stock: ${Math.floor(p.saldo_disponible)} und</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem">
+        <div class="prod-price">${fmt(p.precio_base_venta)}</div>
+        ${qty > 0 ? `
+          <div class="qty-control">
+            <button class="qty-btn" onclick="cambiarCantidad('${p.referencia}',-1)">−</button>
+            <span class="qty-val">${qty}</span>
+            <button class="qty-btn" onclick="cambiarCantidad('${p.referencia}',1)">+</button>
+          </div>
+        ` : `
+          <button class="qty-btn" style="width:auto;padding:0 0.75rem;background:var(--accent);border-radius:8px;font-size:0.85rem" 
+            onclick="agregarProducto('${p.referencia}','${(p.nombre_producto||'').replace(/'/g,"\\'")}',${p.precio_base_venta},${p.saldo_disponible})">
+            + Agregar
+          </button>
+        `}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function agregarProducto(ref, nombre, precio, stock) {
+  pedidoActual.items[ref] = { referencia: ref, nombre_producto: nombre, precio_unitario: precio, cantidad: 1, stock };
+  actualizarResumen();
+  buscarProductos(document.getElementById('np-prod-buscar').value);
+}
+
+function cambiarCantidad(ref, delta) {
+  if(!pedidoActual.items[ref]) return;
+  const item = pedidoActual.items[ref];
+  const nueva = item.cantidad + delta;
+  if(nueva <= 0) { delete pedidoActual.items[ref]; }
+  else if(nueva > item.stock) { showToast('Sin stock suficiente', 'error'); return; }
+  else { item.cantidad = nueva; }
+  actualizarResumen();
+  buscarProductos(document.getElementById('np-prod-buscar').value);
+}
+
+function actualizarResumen() {
+  const items = Object.values(pedidoActual.items);
+  const total = items.reduce((s,i) => s + i.cantidad * i.precio_unitario, 0);
+  document.getElementById('pr-items-count').textContent = `${items.length} producto${items.length!==1?'s':''}`;
+  document.getElementById('pr-total').textContent = fmt(total);
+  const res = document.getElementById('pedido-resumen');
+  if(items.length > 0) res.classList.add('visible');
+  else res.classList.remove('visible');
+}
+
+function abrirConfirmacion() {
+  const items = Object.values(pedidoActual.items);
+  const total = items.reduce((s,i) => s + i.cantidad * i.precio_unitario, 0);
+  document.getElementById('modal-items-lista').innerHTML = items.map(i => `
+    <div class="modal-item">
+      <span class="mi-name">${i.nombre_producto}</span>
+      <span class="mi-qty">${i.cantidad}</span>
+      <span class="mi-val">${fmt(i.cantidad * i.precio_unitario)}</span>
+    </div>
+  `).join('');
+  document.getElementById('modal-total-val').textContent = fmt(total);
+  document.getElementById('modal-confirmacion').classList.add('active');
+}
+
+function cerrarModal() {
+  document.getElementById('modal-confirmacion').classList.remove('active');
+}
+
+async function enviarPedido() {
+  const btn = document.getElementById('btn-enviar-pedido');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const items = Object.values(pedidoActual.items);
+  const obs = document.getElementById('modal-obs').value;
+  try {
+    const data = await api('/pedidos', {
+      method: 'POST',
+      body: JSON.stringify({
+        nit_cliente: pedidoActual.cliente.nit,
+        nombre_cliente: pedidoActual.cliente.nombre,
+        observaciones: obs,
+        items: items.map(i => ({
+          referencia: i.referencia,
+          nombre_producto: i.nombre_producto,
+          cantidad: i.cantidad,
+          precio_unitario: i.precio_unitario,
+          descuento: 0,
+          bodega: '01'
+        }))
+      })
+    });
+    if(data.ok) {
+      cerrarModal();
+      showToast(`✓ Pedido ${data.numero_pedido} creado`, 'success');
+      pedidoActual = { cliente: null, items: {} };
+      document.getElementById('pedido-resumen').classList.remove('visible');
+      setTimeout(() => irA('dashboard'), 1500);
+    } else {
+      showToast(data.error || 'Error al crear pedido', 'error');
+    }
+  } catch(e) {
+    showToast('Error de conexión', 'error');
+  }
+  btn.disabled = false; btn.textContent = '✓ Enviar';
+}
+
+// ── MIS PEDIDOS ──
+async function cargarPedidos() {
+  const lista = document.getElementById('ped-lista');
+  lista.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando pedidos...</p></div>';
+  try {
+    const data = await api(`/pedidos?vendedor=${vendedor.codigo}`);
+    if(!data||!data.length) { lista.innerHTML='<div class="empty-state"><div class="ei">📋</div><p>No hay pedidos aún</p></div>'; return; }
+    lista.innerHTML = data.map(p => `
+      <div class="pedido-item">
+        <div class="pi-top">
+          <div>
+            <div class="pi-num">${p.numero_pedido}</div>
+            <div class="pi-cliente">${p.nombre_cliente}</div>
+          </div>
+          <span class="badge-estado badge-${p.estado}">${p.estado}</span>
+        </div>
+        <div class="pi-bottom">
+          <span class="pi-items">${p.num_items} producto${p.num_items!==1?'s':''} · ${fmtFecha(p.fecha_pedido)}</span>
+          <span class="pi-total">${fmt(p.valor_total)}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    lista.innerHTML = '<div class="empty-state"><div class="ei">⚠️</div><p>Error cargando pedidos</p></div>';
+  }
+}
+
+// Manejo de menú nuevo pedido
+document.querySelector('[onclick="irA(\'nuevo-pedido\')"]').addEventListener('click', () => {
+  irA_nuevoPedido();
+}, true);
+
+// Cerrar modal al tocar overlay
+document.getElementById('modal-confirmacion').addEventListener('click', function(e) {
+  if(e.target === this) cerrarModal();
+});
+
+// Iniciar
+initApp();
+</script>
+</body>
+</html>
